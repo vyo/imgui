@@ -31,7 +31,7 @@ static id<MTLDevice> g_MtlDevice;
 static id<MTLCommandQueue> g_MtlCommandQueue;
 static id<MTLRenderPipelineState> g_MtlRenderPipelineState;
 static id<MTLTexture> g_MtlFontTexture;
-static id<MTLSamplerState> g_MtlLinearSampler;
+static id<MTLSamplerState> g_MtlSamplerState;
 static NSMutableArray<id<MTLBuffer>> *g_MtlBufferPool;
 static id<CAMetalDrawable> g_MtlCurrentDrawable;
 
@@ -141,9 +141,7 @@ void ImGui_ImplMtl_RenderDrawLists(ImDrawData* draw_data)
 
                 [commandEncoder setFragmentTexture:(__bridge id<MTLTexture>)pcmd->TextureId atIndex:0];
 
-                [commandEncoder setFragmentSamplerState:g_MtlLinearSampler atIndex:0];
-
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                [commandEncoder setFragmentSamplerState:g_MtlSamplerState atIndex:0];
 
                 [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                            indexCount:(GLsizei)pcmd->ElemCount
@@ -248,7 +246,7 @@ bool ImGui_ImplMtl_CreateDeviceObjects()
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
 
-    g_MtlLinearSampler = [g_MtlDevice newSamplerStateWithDescriptor:samplerDescriptor];
+    g_MtlSamplerState = [g_MtlDevice newSamplerStateWithDescriptor:samplerDescriptor];
 
     NSString *shaders = @"#include <metal_stdlib>\n\
     using namespace metal;                                                                  \n\
@@ -338,7 +336,7 @@ void    ImGui_ImplMtl_InvalidateDeviceObjects()
     ImGui::GetIO().Fonts->TexID = 0;
 
     g_MtlFontTexture = nil;
-    g_MtlLinearSampler = nil;
+    g_MtlSamplerState = nil;
     g_MtlBufferPool = nil;
     g_MtlRenderPipelineState = nil;
     g_MtlCommandQueue = nil;
